@@ -18,14 +18,27 @@ connectCloudinary();
 // Middlewares
 app.use(express.json());
 
-// ✅ CORS Configuration
+// ✅ CORS Configuration (includes admin localhost:5175 and deployed links)
+const allowedOrigins = [
+  "http://localhost:3000",                   // React dev (default)
+  "http://localhost:5173",                   // Vite frontend dev
+  "http://localhost:5174",                   // Optional: second Vite instance
+  "http://localhost:5175",                   // Vite admin dev
+  "https://carelink-frontend.vercel.app",    // deployed frontend (Vercel)
+  "https://carelink-appointment-app.vercel.app", // alternate frontend
+  "https://carelink-admin.netlify.app",      // deployed admin (Netlify)
+  "https://carelink-appointment-app-xyb8.vercel.app" // deployed admin alt
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:3000",                // React dev server (default)
-    "http://localhost:5173",                // Vite dev server
-    "https://carelink-frontend.vercel.app", // your deployed frontend
-    "https://carelink-admin.netlify.app"    // your deployed admin
-  ],
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl/postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
